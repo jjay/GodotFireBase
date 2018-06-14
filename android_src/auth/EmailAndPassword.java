@@ -86,16 +86,33 @@ public class EmailAndPassword {
 				// If sign in fails, display a message to the user. If sign in succeeds
 				// the auth state listener will be notified and logic to handle the
 				// signed in user can be handled in the listener.
-
-				if (!task.isSuccessful()) {
-					Utils.d("E&P:CreateAccount:Error");
-				}
+				try {
+					JSONObject resp = new JSONObject();
+					resp.put("success", task.isSuccessful());
+					if (!task.isSuccessful()){
+						resp.put("error", task.getException().toString());
+					}
+					Utils.callScriptFunc("Firestore", "EnPAuthUserCreated", resp.toString());
+				} catch(JSONException e) { Utils.d("E&P:JSON:Parse:Error"); }
 			}
 		});
 	}
 
 	public void signIn(final String email, final String password) {
-
+		mAuth.signInWithEmailAndPassword(email, password)
+		.addOnCompleteListener(activity, new OnCompleteListener<AuthResult>(){
+			@Override
+			public void onComplete(@NonNull Task<AuthResult> task) {
+				try {
+					JSONObject resp = new JSONObject();
+					resp.put("success", task.isSuccessful());
+					if (!task.isSuccessful()){
+						resp.put("error", task.getException().toString());
+					}
+					Utils.callScriptFunc("Firestore", "EnPAuthUserSignedIn", resp.toString());
+				} catch(JSONException e) { Utils.d("E&P:JSON:Parse:Error"); }
+			}
+		});
 	}
 
 	public void signOut() {

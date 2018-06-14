@@ -39,6 +39,7 @@ public class Auth {
 	public static final int TWITTER_AUTH	= 0x0005;
 	public static final int EMAIL_AUTH	= 0x0006;
 	public static final int ANONYMOUS_AUTH	= 0x0007;
+	public static final int ENP_AUTH = 0x0008;
 
 	public static Auth getInstance (Activity p_activity) {
 		if (mInstance == null) {
@@ -77,6 +78,17 @@ public class Auth {
 			TwitterSignIn.getInstance(activity).init();
 		}
 		//AuthTwitter--
+
+		//AuthAnonymous++
+		if (config.optBoolean("Anonymous", false)) {
+			AnonymousAuth.getInstance(activity).init();
+		}
+		//AuthAnonymous--
+
+		//AuthEnP++
+		if (config.optBoolean("EnP", false)) {
+			EmailAndPassword.getInstance(activity).init();
+		}
 	}
 
 	public void sign_in (final int type_id) {
@@ -113,6 +125,15 @@ public class Auth {
 		}
 	}
 
+	//AuthEnP++
+	public void sign_in_enp(final String email, final String password){
+		EmailAndPassword.getInstance(activity).signIn(email, password);
+	}
+	public void sign_up(final String email, final String password){
+		EmailAndPassword.getInstance(activity).createAccount(email, password);
+	}
+	//AuthEnP--
+
 	public void sign_out (final int type_id) {
 		if (!isInitialized()) { return; }
 
@@ -140,6 +161,10 @@ public class Auth {
 			case ANONYMOUS_AUTH:
 				Utils.d("Auth:Anonymous:SignOut");
 				AnonymousAuth.getInstance(activity).signOut();
+				break;
+			case ENP_AUTH:
+				Utils.d("Auth:EnP:SignOut");
+				EmailAndPassword.getInstance(activity).signOut();
 				break;
 			default:
 				Utils.d("Auth:Type:NotAvailable.");

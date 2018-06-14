@@ -82,6 +82,10 @@ public class FireBase extends Godot.SingletonBase {
 			"twitter_sign_in", "twitter_sign_out", "is_twitter_connected",
 			//AuthTwitter--
 
+			//AuthEnP++
+			"enp_sign_in", "enp_sign_out", "enp_sign_up",
+			//AuthEnP--
+
 			"anonymous_sign_in", "anonymous_sign_out", "is_anonymous_connected",
 			"authConfig",
 			//Auth--
@@ -103,7 +107,7 @@ public class FireBase extends Godot.SingletonBase {
 			//Storage--
 
 			//Firestore++
-			"load_document", "set_document", "add_document"
+			"load_document", "set_document", "add_document", "delete_document"
 			//Firestore--
 		});
 
@@ -209,7 +213,10 @@ public class FireBase extends Godot.SingletonBase {
 		activity.runOnUiThread(new Runnable() {
 			public void run() {
 				Utils.setScriptInstance(script_id);
-				initFireBase(data);
+				if (!initialized){
+					initFireBase(data);
+				}
+				initialized = true;
 			}
 		});
 	}
@@ -439,6 +446,31 @@ public class FireBase extends Godot.SingletonBase {
 		});
 	}
 	//AuthTwitter--
+
+	//AuthEnP++
+	public void enp_sign_in(final String email, final String password){
+		activity.runOnUiThread(new Runnable() {
+			public void run() {
+				Auth.getInstance(activity).sign_in_enp(email, password);
+			}
+		});
+	}
+
+	public void enp_sign_up(final String email, final String password){
+		activity.runOnUiThread(new Runnable() {
+			public void run(){
+				Auth.getInstance(activity).sign_up(email, password);
+			}
+		});
+	}
+	public void enp_sign_out(){
+		activity.runOnUiThread(new Runnable(){
+			public void run(){
+				Auth.getInstance(activity).sign_out(Auth.ENP_AUTH);
+			}
+		});
+	}
+	//AuthEnP--
 
 	//AuthFacebook++
 	public void facebook_sign_in() {
@@ -678,6 +710,14 @@ public class FireBase extends Godot.SingletonBase {
 			}
 		});
 	}
+
+	public void delete_document(final String p_collection, final String p_document) {
+		activity.runOnUiThread(new Runnable() {
+			public void run() {
+				Firestore.getInstance(activity).deleteDocument(p_collection, p_document);
+			}
+		});
+	}
 	//Firestore--
 
 	/** Main Funcs **/
@@ -762,6 +802,7 @@ public class FireBase extends Godot.SingletonBase {
 	private static Context context = null;
 	private static Activity activity = null;
 	protected static String currentScreen = "None";
+	private boolean initialized = false;
 
 	private static JSONObject firebaseConfig = new JSONObject();
 

@@ -69,7 +69,6 @@ public class Firestore {
 
 	public void loadDocuments (final String p_name) {
 		Utils.d("Firestore::LoadData");
-
 		db.collection(p_name).get()
 		.addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
 			@Override
@@ -79,15 +78,14 @@ public class Firestore {
 
 					try {
 						for (DocumentSnapshot document : task.getResult()) {
-							jobject.put(
-							document.getId(), document.getData());
+							jobject.put(document.getId(), document.getData());
 						}
 
 						Utils.d("Data: " + jobject.toString());
 						Utils.callScriptFunc(
 						"Firestore", "Documents", jobject.toString());
 					} catch (JSONException e) {
-						Utils.d("JSON Exception: " + e.toString());
+						Utils.d("JSON Exce	ption: " + e.toString());
 					}
 				} else {
 					Utils.w("Error getting documents: " + task.getException());
@@ -134,6 +132,17 @@ public class Firestore {
 			}
 		});
 
+	}
+
+	public void deleteDocument(final String p_col_name, final String p_doc_name){
+		db.collection(p_col_name).document(p_doc_name).delete()
+		.addOnSuccessListener(new OnSuccessListener<Void>() {
+			@Override
+			public void onSuccess(Void aVoid) {
+				Utils.d("DocumentSnapshot successfully written!");
+				Utils.callScriptFunc("Firestore", "DocumentDeleted", true);
+			}
+		});
 	}
 
 	private FirebaseFirestore db = null;
